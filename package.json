@@ -1,24 +1,43 @@
 {
-    "name": "pacclean",
+    "name": "pacman-cleaner",
     "version": "1.0.0",
     "description": "Clear your terminal the fun way!",
-    "main": "dist/index.js",
+    "type": "module",
     "bin": {
-        "pacclean": "./dist/index.js"
+        "pacman-cleaner": "dist/index.js",
+        "pacclean": "dist/index.js"
+    },
+    "files": [
+        "dist"
+    ],
+    "engines": {
+        "node": ">=18"
     },
     "scripts": {
+        "prebuild": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
         "build": "tsc",
-        "start": "tsc && node dist/index.js --test",
-        "prepublishOnly": "npm run build"
+        "start": "npm run build && node dist/index.js --test",
+        "prepack": "npm run build"
     },
     "keywords": [
         "cli",
         "terminal",
         "clear",
-        "animation"
+        "animation",
+        "pacman",
+        "fun",
+        "ascii"
     ],
-    "author": "",
+    "author": "jwl-7",
     "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jwl-7/pacman-cleaner.git"
+    },
+    "homepage": "https://github.com/jwl-7/pacman-cleaner#readme",
+    "bugs": {
+        "url": "https://github.com/jwl-7/pacman-cleaner/issues"
+    },
     "devDependencies": {
         "@types/node": "^20.19.43",
         "typescript": "^5.0.0"
