@@ -21,6 +21,7 @@ const HIDE_CURSOR = `${ESC}[?25l`;
 const SHOW_CURSOR = `${ESC}[?25h`;
 const CLEAR_SCREEN = `${ESC}[2J${ESC}[1;1H`;
 const RESET_COLOR = `${ESC}[0m`;
+const BOLD = `${ESC}[1m`;
 const QUERY_CURSOR_POSITION = `${ESC}[6n`;
 
 const cursorTo = (row: number, col: number): string => `${ESC}[${row};${col}H`;
@@ -35,13 +36,28 @@ const hex = (color: number): string => rgb((color >> 16) & 0xff, (color >> 8) & 
 const COLOR_EYE_WHITE = rgb(255, 255, 255);
 const COLOR_EYE_PUPIL = rgb(33, 33, 255);
 
+/**
+ * A solid color, or a function that colors a sprite column by column (given
+ * the column within the sprite), which is how the rainbow theme works.
+ */
+type Paint = string | ((column: number) => string);
+
 interface Theme {
-  pacman: string;
-  blinky: string;
-  pinky: string;
-  inky: string;
-  clyde: string;
+  pacman: Paint;
+  blinky: Paint;
+  pinky: Paint;
+  inky: Paint;
+  clyde: Paint;
 }
+
+/** Current animation tick, so animated paints (rainbow) can shift over time. */
+let animationTick = 0;
+
+/** A color gradient across the sprite that slowly scrolls, starting at `offset` degrees of hue. */
+const rainbow =
+  (offset: number): Paint =>
+  (column) =>
+    hue(offset + column * 9 + animationTick * 6);
 
 const THEMES: Record<string, Theme> = {
   classic: {
@@ -100,6 +116,21 @@ const THEMES: Record<string, Theme> = {
     pinky: hex(0xd3869b), // pink
     inky: hex(0x83a598), // blue
     clyde: hex(0xfe8019) // orange
+  },
+  cupertino: {
+    // Apple's system colors: clean and bright, and readable on light terminals.
+    pacman: hex(0xffcc00), // yellow
+    blinky: hex(0xff3b30), // red
+    pinky: hex(0xff2d55), // pink
+    inky: hex(0x5ac8fa), // teal
+    clyde: hex(0xff9500) // orange
+  },
+  rainbow: {
+    pacman: rainbow(0),
+    blinky: rainbow(72),
+    pinky: rainbow(144),
+    inky: rainbow(216),
+    clyde: rainbow(288)
   }
 };
 
@@ -348,7 +379,7 @@ function renderSprite(
   frameIndex: number,
   x: number,
   y: number,
-  bodyColor: string,
+  bodyColor: Paint,
   facingRight: boolean,
   trail: number,
   cols: number,
@@ -414,7 +445,7 @@ function renderSprite(
       let color = RESET_COLOR;
       let out = ' ';
       if (cell === '█') {
-        color = bodyColor;
+        color = typeof bodyColor === 'function' ? bodyColor(screenX - x) : bodyColor;
         out = '█';
       } else if (cell === 'W') {
         color = COLOR_EYE_WHITE;
@@ -591,20 +622,37 @@ ${options}
 `);
 }
 
-/** Prints Pac-Man and the four ghosts in every theme, one theme per line. */
-function printThemes(): void {
-  const names = Object.keys(THEMES);
+/**
+ * Prints Pac-Man and the four ghosts in every theme, one theme per line,
+ * with a marker on the theme that `--theme` (or the default) would use.
+ */
+function printThemes(selected: string): void {
+  const names = THEME_CHOICES;
   const width = Math.max(...names.map((name) => name.length));
   const block = '██';
+  const solid = (paint: Paint): string => (typeof paint === 'function' ? paint(0) : paint);
 
   console.log();
   for (const name of names) {
-    const { pacman, blinky, pinky, inky, clyde } = THEMES[name];
-    const sprites = [pacman, blinky, pinky, inky, clyde].map((color) => color + block + RESET_COLOR).join(' ');
-    const suffix = name === DEFAULT_THEME ? ' (default)' : '';
-    console.log(`  ${name.padEnd(width)}  ${sprites}${suffix}`);
+    let sprites: string;
+    let note = '';
+    if (name === RANDOM_THEME) {
+      // One Pac-Man from each theme, as a hint that it could be any of them.
+      const pool = Object.values(THEMES);
+      sprites = Array.from({ length: 5 }, (_, i) => solid(pool[(i * 2) % pool.length].pacman) + '▒▒' + RESET_COLOR).join(' ');
+      note = '  🎲 a surprise every run';
+    } else {
+      const { pacman, blinky, pinky, inky, clyde } = THEMES[name];
+      sprites = [pacman, blinky, pinky, inky, clyde].map((paint) => solid(paint) + block + RESET_COLOR).join(' ');
+      if (name === DEFAULT_THEME) note = '  (default)';
+    }
+
+    const isSelected = name === selected;
+    const marker = isSelected ? `${BOLD}›${RESET_COLOR}` : ' ';
+    const label = isSelected ? `${BOLD}${name.padEnd(width)}${RESET_COLOR}` : name.padEnd(width);
+    console.log(` ${marker} ${label}  ${sprites}${note}${isSelected ? '  ← selected' : ''}`);
   }
-  console.log(`\n  ${RANDOM_THEME.padEnd(width)}  picks one of the above each run\n`);
+  console.log('\n  Use one with: pacclean --theme <name>\n');
 }
 
 function parseArgs(argv: string[]): Options {
@@ -699,6 +747,7 @@ async function sweepBand(top: number, facingRight: boolean, speed: Speed, theme:
   for (let step = 0; ; step++) {
     // Re-read the size every tick so a resize mid-animation is harmless.
     const { cols, rows } = terminalSize();
+    animationTick = step;
 
     // Done once the last ghost, and the trail it blanks, have left the screen.
     const tailX = ghostX(x, lastOffset);
@@ -804,7 +853,7 @@ async function main(): Promise<void> {
     return;
   }
   if (options.themes) {
-    printThemes();
+    printThemes(options.theme);
     return;
   }
 

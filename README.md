@@ -49,7 +49,14 @@ Both `--speed fast` and `--speed=fast` work.
 
 **Speeds:** `chill`, `arcade` (default), `fast`, `turbo`
 
-**Themes:** `classic` (default, arcade-accurate), `neon`, `matrix`, `pastel`, `dracula`, `monokai` (Monokai Pro), `nord`, `gruvbox`, and `random` to pick a different one each run.
+**Themes:** run `pacclean --themes` to preview them all.
+
+- `classic` (default): the arcade-accurate colors
+- `neon`, `matrix`, `pastel`
+- `dracula`, `monokai` (Monokai Pro), `nord`, `gruvbox`: popular editor palettes
+- `cupertino`: bright Apple-style system colors, good on light terminals
+- `rainbow`: animated gradient that scrolls as everyone runs
+- `random`: a different theme every run
 
 ### Examples
 
