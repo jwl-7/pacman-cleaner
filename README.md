@@ -41,6 +41,7 @@ pacclean [options]
 | `--speed <name>`  | Animation speed (see below)             | `arcade`  |
 | `--theme <name>`  | Color theme (see below)                 | `classic` |
 | `--test`          | Print sample text first, to see it work |           |
+| `--themes`        | Preview every color theme               |           |
 | `-h`, `--help`    | Show help                               |           |
 | `-v`, `--version` | Show the version                        |           |
 

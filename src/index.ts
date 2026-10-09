@@ -558,6 +558,7 @@ interface Options {
   speed: string;
   theme: string;
   test: boolean;
+  themes: boolean;
   help: boolean;
   version: boolean;
 }
@@ -571,6 +572,7 @@ function printHelp(): void {
     [`--speed <${Object.keys(SPEEDS).join('|')}>`, `Set animation speed (default: ${DEFAULT_SPEED})`],
     [`--theme <${THEME_CHOICES.join('|')}>`, `Set color theme (default: ${DEFAULT_THEME})`],
     ['--test', 'Print sample text before cleaning'],
+    ['--themes', 'Preview every color theme'],
     ['--help, -h', 'Show help information'],
     ['--version, -v', 'Show version number']
   ];
@@ -589,11 +591,28 @@ ${options}
 `);
 }
 
+/** Prints Pac-Man and the four ghosts in every theme, one theme per line. */
+function printThemes(): void {
+  const names = Object.keys(THEMES);
+  const width = Math.max(...names.map((name) => name.length));
+  const block = '██';
+
+  console.log();
+  for (const name of names) {
+    const { pacman, blinky, pinky, inky, clyde } = THEMES[name];
+    const sprites = [pacman, blinky, pinky, inky, clyde].map((color) => color + block + RESET_COLOR).join(' ');
+    const suffix = name === DEFAULT_THEME ? ' (default)' : '';
+    console.log(`  ${name.padEnd(width)}  ${sprites}${suffix}`);
+  }
+  console.log(`\n  ${RANDOM_THEME.padEnd(width)}  picks one of the above each run\n`);
+}
+
 function parseArgs(argv: string[]): Options {
   const options: Options = {
     speed: DEFAULT_SPEED,
     theme: DEFAULT_THEME,
     test: false,
+    themes: false,
     help: false,
     version: false
   };
@@ -634,6 +653,10 @@ function parseArgs(argv: string[]): Options {
       case '--test':
         noValue();
         options.test = true;
+        break;
+      case '--themes':
+        noValue();
+        options.themes = true;
         break;
       case '--speed':
         options.speed = choice(Object.keys(SPEEDS));
@@ -778,6 +801,10 @@ async function main(): Promise<void> {
   }
   if (options.version) {
     console.log(`pacman-cleaner v${VERSION}`);
+    return;
+  }
+  if (options.themes) {
+    printThemes();
     return;
   }
 
