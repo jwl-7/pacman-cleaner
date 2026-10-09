@@ -1,0 +1,26 @@
+{
+    "name": "pacclean",
+    "version": "1.0.0",
+    "description": "Clear your terminal the fun way!",
+    "main": "dist/index.js",
+    "bin": {
+        "pacclean": "./dist/index.js"
+    },
+    "scripts": {
+        "build": "tsc",
+        "start": "tsc && node dist/index.js --test",
+        "prepublishOnly": "npm run build"
+    },
+    "keywords": [
+        "cli",
+        "terminal",
+        "clear",
+        "animation"
+    ],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/node": "^20.19.43",
+        "typescript": "^5.0.0"
+    }
+}

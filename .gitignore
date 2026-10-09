@@ -1,0 +1,27 @@
+# Build output
+dist/
+
+# Dependencies (skip for Windows/npm-cache compatibility)
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+.lerc-debug.log
+
+# Environment variables
+.env
+.env.*
+
+# Test coverage
+coverage/
+.nyc_output/
