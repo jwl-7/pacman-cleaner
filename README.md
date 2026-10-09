@@ -2,7 +2,7 @@
 
 # 🟡 pacman-cleaner
 
-**Clear your terminal the fun way.**
+**Clear your terminal the fun way!**
 Pac-Man and the four ghosts chomp through everything on screen, then leave you a clean slate.
 
 [![npm version](https://img.shields.io/npm/v/pacman-cleaner.svg)](https://www.npmjs.com/package/pacman-cleaner)
@@ -36,21 +36,26 @@ This gives you two commands: `pacclean` (short) and `pacman-cleaner`.
 pacclean [options]
 ```
 
-| Option                                    | Description                              | Default   |
-| ----------------------------------------- | ---------------------------------------- | --------- |
-| `--speed <snail\|normal\|fast\|turbo>`    | Animation speed                          | `normal`  |
-| `--theme <classic\|neon\|matrix\|pastel>` | Color theme                              | `classic` |
-| `--test`                                  | Print sample text first, to see it work  |           |
-| `-h`, `--help`                            | Show help                                |           |
-| `-v`, `--version`                         | Show the version                         |           |
+| Option            | Description                             | Default   |
+| ----------------- | --------------------------------------- | --------- |
+| `--speed <name>`  | Animation speed (see below)             | `arcade`  |
+| `--theme <name>`  | Color theme (see below)                 | `classic` |
+| `--test`          | Print sample text first, to see it work |           |
+| `-h`, `--help`    | Show help                               |           |
+| `-v`, `--version` | Show the version                        |           |
 
 Both `--speed fast` and `--speed=fast` work.
+
+**Speeds:** `chill`, `arcade` (default), `fast`, `turbo`
+
+**Themes:** `classic` (default, arcade-accurate), `neon`, `matrix`, `pastel`, `dracula`, `monokai` (Monokai Pro), `nord`, `gruvbox`, and `random` to pick a different one each run.
 
 ### Examples
 
 ```sh
-pacclean                          # classic colors, normal speed
-pacclean --theme neon --speed fast
+pacclean                          # classic colors, arcade speed
+pacclean --theme monokai --speed fast
+pacclean --theme random           # surprise me
 pacclean --test --theme matrix    # fill the screen with test text, then clean it
 ```
 

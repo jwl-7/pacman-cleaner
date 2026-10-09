@@ -25,6 +25,7 @@ const QUERY_CURSOR_POSITION = `${ESC}[6n`;
 
 const cursorTo = (row: number, col: number): string => `${ESC}[${row};${col}H`;
 const rgb = (r: number, g: number, b: number): string => `${ESC}[38;2;${r};${g};${b}m`;
+const hex = (color: number): string => rgb((color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff);
 
 // ---------------------------------------------------------------------------
 // Themes and speeds
@@ -70,8 +71,40 @@ const THEMES: Record<string, Theme> = {
     pinky: rgb(186, 225, 255),
     inky: rgb(204, 255, 204),
     clyde: rgb(255, 255, 186)
+  },
+  dracula: {
+    pacman: hex(0xf1fa8c), // yellow
+    blinky: hex(0xff5555), // red
+    pinky: hex(0xff79c6), // pink
+    inky: hex(0x8be9fd), // cyan
+    clyde: hex(0xffb86c) // orange
+  },
+  monokai: {
+    // Monokai Pro
+    pacman: hex(0xffd866), // yellow
+    blinky: hex(0xff6188), // red
+    pinky: hex(0xab9df2), // purple
+    inky: hex(0x78dce8), // cyan
+    clyde: hex(0xfc9867) // orange
+  },
+  nord: {
+    pacman: hex(0xebcb8b), // yellow
+    blinky: hex(0xbf616a), // red
+    pinky: hex(0xb48ead), // purple
+    inky: hex(0x88c0d0), // frost
+    clyde: hex(0xd08770) // orange
+  },
+  gruvbox: {
+    pacman: hex(0xfabd2f), // yellow
+    blinky: hex(0xfb4934), // red
+    pinky: hex(0xd3869b), // pink
+    inky: hex(0x83a598), // blue
+    clyde: hex(0xfe8019) // orange
   }
 };
+
+/** Not a palette: picks one of the themes above at random on each run. */
+const RANDOM_THEME = 'random';
 
 interface Speed {
   /** Delay between animation ticks. */
@@ -83,13 +116,13 @@ interface Speed {
 }
 
 const SPEEDS: Record<string, Speed> = {
-  snail: { speedMs: 35, moveStep: 1, mouthDivider: 4 },
-  normal: { speedMs: 15, moveStep: 1, mouthDivider: 3 },
+  chill: { speedMs: 35, moveStep: 1, mouthDivider: 4 },
+  arcade: { speedMs: 15, moveStep: 1, mouthDivider: 3 },
   fast: { speedMs: 8, moveStep: 2, mouthDivider: 2 },
   turbo: { speedMs: 4, moveStep: 3, mouthDivider: 1 }
 };
 
-const DEFAULT_SPEED = 'normal';
+const DEFAULT_SPEED = 'arcade';
 const DEFAULT_THEME = 'classic';
 
 /** Ticks per ghost "feet" frame. */
@@ -450,12 +483,71 @@ function queryCursorRow(fallback: number): Promise<number> {
   });
 }
 
-async function printTestText(rows: number): Promise<void> {
-  const lines = Math.max(1, Math.min(rows - 2, 20));
-  for (let i = 1; i <= lines; i++) {
-    process.stdout.write(`>>> Terminal Cleaner Test Line ${i} - ${'█'.repeat(20)} <<<\n`);
+/** Hue 0-360 to a fully saturated color. */
+function hue(degrees: number): string {
+  const f = (n: number): number => {
+    const k = (n + degrees / 60) % 6;
+    return Math.round(255 * (1 - Math.max(0, Math.min(k, 4 - k, 1))));
+  };
+  return rgb(f(5), f(3), f(1));
+}
+
+type Segment = [text: string, color: string];
+
+const GREEN = rgb(80, 250, 123);
+const CYAN = rgb(139, 233, 253);
+const YELLOW = rgb(241, 250, 140);
+const ORANGE = rgb(255, 184, 108);
+const RED = rgb(255, 85, 85);
+const PURPLE = rgb(189, 147, 249);
+const GRAY = rgb(130, 140, 160);
+const WHITE = rgb(248, 248, 242);
+
+/** A fake dev session, so the demo has plenty of colorful "mess" to clean up. */
+const TEST_SESSION: Segment[][] = [
+  [['$ ', GREEN], ['npm install left-pad', WHITE]],
+  [['added 1337 packages, and audited 1338 packages in 4s', GRAY]],
+  [['$ ', GREEN], ['git log --oneline', WHITE]],
+  [['a1b2c3d ', YELLOW], ['fix everything (for real this time)', WHITE]],
+  [['e4f5a6b ', YELLOW], ['it works on my machine', WHITE]],
+  [['c7d8e9f ', YELLOW], ['TODO: write tests', WHITE]],
+  [['$ ', GREEN], ['npm run build', WHITE]],
+  [['✔ ', GREEN], ['compiled successfully in 1.2s', WHITE]],
+  [['⚠ ', ORANGE], ['3 warnings: unused variable "ghost"', ORANGE]],
+  [['✖ ', RED], ['0 errors, 99 problems', RED]],
+  [['[INFO]  ', CYAN], ['server listening on http://localhost:3000', WHITE]],
+  [['[DEBUG] ', PURPLE], ['wakka wakka wakka wakka wakka wakka', GRAY]],
+  [['$ ', GREEN], ['echo "Hello, world!"', WHITE]],
+  [['Hello, world!', CYAN]]
+];
+
+function rainbowBar(width: number): Segment[] {
+  const cells: Segment[] = [];
+  for (let i = 0; i < width; i++) cells.push(['█', hue((i / width) * 360)]);
+  return cells;
+}
+
+/** Fills the screen with colorful fake terminal output for Pac-Man to eat. */
+async function printTestText(cols: number, rows: number): Promise<void> {
+  const lines = Math.max(1, Math.min(rows - 2, 40));
+  const width = Math.max(1, cols - 1); // stay clear of the last column so nothing wraps
+  let session = 0;
+
+  for (let i = 0; i < lines; i++) {
+    // A rainbow bar every sixth line, session output in between.
+    const segments = i % 6 === 5 ? rainbowBar(width) : TEST_SESSION[session++ % TEST_SESSION.length];
+
+    let buf = '';
+    let left = width;
+    for (const [text, color] of segments) {
+      if (left <= 0) break;
+      const part = text.slice(0, left);
+      buf += color + part;
+      left -= part.length;
+    }
+    process.stdout.write(buf + RESET_COLOR + '\n');
   }
-  await delay(200);
+  await delay(600);
 }
 
 // ---------------------------------------------------------------------------
@@ -470,12 +562,14 @@ interface Options {
   version: boolean;
 }
 
+const THEME_CHOICES = [...Object.keys(THEMES), RANDOM_THEME];
+
 class UsageError extends Error {}
 
 function printHelp(): void {
   const rows: Array<[string, string]> = [
     [`--speed <${Object.keys(SPEEDS).join('|')}>`, `Set animation speed (default: ${DEFAULT_SPEED})`],
-    [`--theme <${Object.keys(THEMES).join('|')}>`, `Set color theme (default: ${DEFAULT_THEME})`],
+    [`--theme <${THEME_CHOICES.join('|')}>`, `Set color theme (default: ${DEFAULT_THEME})`],
     ['--test', 'Print sample text before cleaning'],
     ['--help, -h', 'Show help information'],
     ['--version, -v', 'Show version number']
@@ -545,7 +639,7 @@ function parseArgs(argv: string[]): Options {
         options.speed = choice(Object.keys(SPEEDS));
         break;
       case '--theme':
-        options.theme = choice(Object.keys(THEMES));
+        options.theme = choice(THEME_CHOICES);
         break;
       default:
         throw new UsageError(`Unknown option: ${arg}`);
@@ -619,10 +713,14 @@ async function run(options: Options): Promise<void> {
   }
 
   const speed = SPEEDS[options.speed];
-  const theme = THEMES[options.theme];
+  const themeNames = Object.keys(THEMES);
+  const themeName =
+    options.theme === RANDOM_THEME ? themeNames[Math.floor(Math.random() * themeNames.length)] : options.theme;
+  const theme = THEMES[themeName];
 
   if (options.test) {
-    await printTestText(terminalSize().rows);
+    const { cols, rows } = terminalSize();
+    await printTestText(cols, rows);
   }
 
   // Only sweep down to the row the cursor is on; everything below is empty.
