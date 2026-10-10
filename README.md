@@ -2,12 +2,7 @@
 
 # pacman-cleaner
 
-**Wakka that terminal clean!**
-Pac-Man and the four ghosts chomp through everything on screen, then leave you a clean slate.
-
-[![npm version](https://img.shields.io/npm/v/pacman-cleaner.svg)](https://www.npmjs.com/package/pacman-cleaner)
-[![license](https://img.shields.io/npm/l/pacman-cleaner.svg)](LICENSE)
-[![node](https://img.shields.io/node/v/pacman-cleaner.svg)](package.json)
+Wakka that terminal clean!
 
 <img src="https://github.com/user-attachments/assets/c4534f67-7df8-4cab-9027-a4810b79fa58" alt="pacman-cleaner demo" width="720">
 
@@ -18,13 +13,13 @@ Pac-Man and the four ghosts chomp through everything on screen, then leave you a
 Try it without installing:
 
 ```sh
-npx pacman-cleaner
+npx github:jwl-7/pacman-cleaner
 ```
 
 Or install it globally:
 
 ```sh
-npm install -g pacman-cleaner
+npm install -g github:jwl-7/pacman-cleaner
 ```
 
 ## Usage
@@ -60,7 +55,7 @@ pacclean [options]
 - `rainbow`
 - `random`
 
-### Examples
+### Example
 
 ```sh
 pacclean
