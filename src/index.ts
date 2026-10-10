@@ -629,7 +629,8 @@ function printHelp(): void {
   ];
   const width = Math.max(...rows.map(([flag]) => flag.length));
   const options = rows.map(([flag, text]) => `    ${flag.padEnd(width)}  ${text}`).join('\n');
-  const speeds = Object.keys(SPEEDS)
+  // The default goes first, like classic does for themes.
+  const speeds = [DEFAULT_SPEED, ...Object.keys(SPEEDS).filter((name) => name !== DEFAULT_SPEED)]
     .map((name) => `    ${name}${name === DEFAULT_SPEED ? ' (default)' : ''}`)
     .join('\n');
 
