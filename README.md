@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🟡 pacman-cleaner
+# pacman-cleaner
 
 **Wakka that terminal clean!**
 Pac-Man and the four ghosts chomp through everything on screen, then leave you a clean slate.
@@ -9,8 +9,7 @@ Pac-Man and the four ghosts chomp through everything on screen, then leave you a
 [![license](https://img.shields.io/npm/l/pacman-cleaner.svg)](LICENSE)
 [![node](https://img.shields.io/node/v/pacman-cleaner.svg)](package.json)
 
-<!-- Record with `vhs demo.tape` (see demo.tape), or any screen recorder, and save to assets/demo.gif -->
-<img src="assets/demo.gif" alt="pacman-cleaner demo" width="720">
+<img src="https://github.com/user-attachments/assets/c4534f67-7df8-4cab-9027-a4810b79fa58" alt="pacman-cleaner demo" width="720">
 
 </div>
 
@@ -28,58 +27,48 @@ Or install it globally:
 npm install -g pacman-cleaner
 ```
 
-This gives you two commands: `pacclean` (short) and `pacman-cleaner`.
-
 ## Usage
 
 ```sh
+pacman-cleaner [options]
 pacclean [options]
 ```
 
 | Option            | Description                             | Default   |
 | ----------------- | --------------------------------------- | --------- |
-| `--speed <name>`  | Animation speed (see below)             | `arcade`  |
-| `--theme <name>`  | Color theme (see below)                 | `classic` |
-| `-h`, `--help`    | Show help, including every theme in color |         |
-| `-v`, `--version` | Show the version                        |           |
+| `--speed <name>`  | Animation speed              | `arcade`  |
+| `--theme <name>`  | Color theme                 | `classic` |
+| `-h`, `--help`    | Show help |         |
+| `-v`, `--version` | Show version                        |           |
 
-Both `--speed fast` and `--speed=fast` work.
+**Speeds**
+- `arcade` (default)
+- `chill`
+- `fast`
+- `turbo`
 
-**Speeds:** `chill`, `arcade` (default), `fast`, `turbo`
-
-**Themes:** run `pacclean -h` to see them all in color.
-
-- `classic` (default): the arcade-accurate colors
-- `neon`, `matrix`, `pastel`
-- `dracula`, `monokai` (Monokai Pro), `nord`, `gruvbox`: popular editor palettes
-- `cupertino`: bright Apple-style system colors, good on light terminals
-- `rainbow`: animated gradient that scrolls as everyone runs
-- `random`: a different theme every run
+**Themes**
+- `classic` (default)
+- `neon`
+- `matrix`
+- `pastel`
+- `dracula`
+- `monokai`
+- `nord`
+- `gruvbox`
+- `cupertino`
+- `rainbow`
+- `random`
 
 ### Examples
 
 ```sh
-pacclean                          # classic colors, arcade speed
-pacclean --theme monokai --speed fast
-pacclean --theme random           # surprise me
+pacclean
+pacclean --theme random
+pacclean --speed fast
 ```
 
 ## Requirements
 
-- Node.js 18 or newer
-- A truecolor (24-bit) terminal, such as Windows Terminal, iTerm2, or most modern Linux terminals
-
-## Contributing
-
-```sh
-git clone https://github.com/jwl-7/pacman-cleaner.git
-cd pacman-cleaner
-npm install
-npm start        # builds, then runs the animation with test text
-```
-
-`pacclean --test` fills the screen with colorful sample text before cleaning it. It isn't listed in `--help`, but it's handy for trying changes and recording the demo GIF.
-
-## License
-
-[MIT](LICENSE) © jwl-7
+- Node.js 18+
+- Truecolor (24-bit) terminal (Windows Terminal, iTerm2, Alacritty)
