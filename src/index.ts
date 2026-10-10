@@ -610,7 +610,6 @@ function themeLines(): string[] {
       // A Pac-Man from several different themes, since it could be any of them.
       const pool = Object.values(THEMES);
       sprites = swatch(Array.from({ length: 5 }, (_, i) => pool[(i * 2) % pool.length].pacman), '▒▒');
-      note = '  a different theme every run';
     } else {
       const { pacman, blinky, pinky, inky, clyde } = THEMES[name];
       sprites = swatch([pacman, blinky, pinky, inky, clyde], '██');
@@ -631,8 +630,8 @@ function printHelp(): void {
   const width = Math.max(...rows.map(([flag]) => flag.length));
   const options = rows.map(([flag, text]) => `    ${flag.padEnd(width)}  ${text}`).join('\n');
   const speeds = Object.keys(SPEEDS)
-    .map((name) => (name === DEFAULT_SPEED ? `${name} (default)` : name))
-    .join(', ');
+    .map((name) => `    ${name}${name === DEFAULT_SPEED ? ' (default)' : ''}`)
+    .join('\n');
 
   console.log(`
   pacman-cleaner v${VERSION} - clear your terminal the fun way
@@ -645,7 +644,7 @@ function printHelp(): void {
 ${options}
 
   SPEEDS:
-    ${speeds}
+${speeds}
 
   THEMES:
 ${themeLines().join('\n')}
