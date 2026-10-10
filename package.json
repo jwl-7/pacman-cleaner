@@ -1,7 +1,7 @@
 {
     "name": "pacman-cleaner",
     "version": "1.0.0",
-    "description": "Clear your terminal the fun way!",
+    "description": "Wakka that terminal clean! Pac-Man and the ghosts eat everything on your screen.",
     "type": "module",
     "bin": {
         "pacman-cleaner": "dist/index.js",

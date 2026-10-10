@@ -635,7 +635,7 @@ function printHelp(): void {
     .join('\n');
 
   console.log(`
-  pacman-cleaner v${VERSION} - clear your terminal the fun way
+  pacman-cleaner v${VERSION} - wakka that terminal clean
 
   USAGE:
     pacclean [options]

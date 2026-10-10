@@ -2,7 +2,7 @@
 
 # 🟡 pacman-cleaner
 
-**Clear your terminal the fun way!**
+**Wakka that terminal clean!**
 Pac-Man and the four ghosts chomp through everything on screen, then leave you a clean slate.
 
 [![npm version](https://img.shields.io/npm/v/pacman-cleaner.svg)](https://www.npmjs.com/package/pacman-cleaner)
