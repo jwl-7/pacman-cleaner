@@ -600,18 +600,18 @@ class UsageError extends Error {}
 
 function printHelp(): void {
   const rows: Array<[string, string]> = [
-    [`--speed <${Object.keys(SPEEDS).join('|')}>`, `Set animation speed (default: ${DEFAULT_SPEED})`],
-    [`--theme <${THEME_CHOICES.join('|')}>`, `Set color theme (default: ${DEFAULT_THEME})`],
-    ['--test', 'Print sample text before cleaning'],
-    ['--themes', 'Preview every color theme'],
-    ['--help, -h', 'Show help information'],
-    ['--version, -v', 'Show version number']
+    ['--speed <name>', `Animation speed (default: ${DEFAULT_SPEED})`],
+    ['--theme <name>', `Color theme (default: ${DEFAULT_THEME})`],
+    ['--themes', 'Preview all themes'],
+    ['--test', 'Fill the screen with sample text first'],
+    ['-h, --help', 'Show this help'],
+    ['-v, --version', 'Show the version']
   ];
   const width = Math.max(...rows.map(([flag]) => flag.length));
   const options = rows.map(([flag, text]) => `    ${flag.padEnd(width)}  ${text}`).join('\n');
 
   console.log(`
-  pacman-cleaner - The arcade-accurate terminal cleaner animation
+  pacman-cleaner v${VERSION} - clear your terminal the fun way
 
   USAGE:
     pacclean [options]
@@ -619,6 +619,12 @@ function printHelp(): void {
 
   OPTIONS:
 ${options}
+
+  SPEEDS:
+    ${Object.keys(SPEEDS).join(', ')}
+
+  THEMES:
+    ${THEME_CHOICES.join(', ')}
 `);
 }
 
