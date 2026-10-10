@@ -40,16 +40,14 @@ pacclean [options]
 | ----------------- | --------------------------------------- | --------- |
 | `--speed <name>`  | Animation speed (see below)             | `arcade`  |
 | `--theme <name>`  | Color theme (see below)                 | `classic` |
-| `--test`          | Print sample text first, to see it work |           |
-| `--themes`        | Preview every color theme               |           |
-| `-h`, `--help`    | Show help                               |           |
+| `-h`, `--help`    | Show help, including every theme in color |         |
 | `-v`, `--version` | Show the version                        |           |
 
 Both `--speed fast` and `--speed=fast` work.
 
 **Speeds:** `chill`, `arcade` (default), `fast`, `turbo`
 
-**Themes:** run `pacclean --themes` to preview them all.
+**Themes:** run `pacclean -h` to see them all in color.
 
 - `classic` (default): the arcade-accurate colors
 - `neon`, `matrix`, `pastel`
@@ -64,7 +62,6 @@ Both `--speed fast` and `--speed=fast` work.
 pacclean                          # classic colors, arcade speed
 pacclean --theme monokai --speed fast
 pacclean --theme random           # surprise me
-pacclean --test --theme matrix    # fill the screen with test text, then clean it
 ```
 
 ## Requirements
@@ -80,6 +77,8 @@ cd pacman-cleaner
 npm install
 npm start        # builds, then runs the animation with test text
 ```
+
+`pacclean --test` fills the screen with colorful sample text before cleaning it. It isn't listed in `--help`, but it's handy for trying changes and recording the demo GIF.
 
 ## License
 

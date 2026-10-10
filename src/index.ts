@@ -21,7 +21,6 @@ const HIDE_CURSOR = `${ESC}[?25l`;
 const SHOW_CURSOR = `${ESC}[?25h`;
 const CLEAR_SCREEN = `${ESC}[2J${ESC}[1;1H`;
 const RESET_COLOR = `${ESC}[0m`;
-const BOLD = `${ESC}[1m`;
 const QUERY_CURSOR_POSITION = `${ESC}[6n`;
 
 const cursorTo = (row: number, col: number): string => `${ESC}[${row};${col}H`;
@@ -589,7 +588,6 @@ interface Options {
   speed: string;
   theme: string;
   test: boolean;
-  themes: boolean;
   help: boolean;
   version: boolean;
 }
@@ -598,17 +596,43 @@ const THEME_CHOICES = [...Object.keys(THEMES), RANDOM_THEME];
 
 class UsageError extends Error {}
 
+/** One help line per theme: its name, then Pac-Man and the four ghosts in its colors. */
+function themeLines(): string[] {
+  const width = Math.max(...THEME_CHOICES.map((name) => name.length));
+  const solid = (paint: Paint): string => (typeof paint === 'function' ? paint(0) : paint);
+  const swatch = (paints: Paint[], block: string): string =>
+    paints.map((paint) => solid(paint) + block + RESET_COLOR).join(' ');
+
+  return THEME_CHOICES.map((name) => {
+    let sprites: string;
+    let note = '';
+    if (name === RANDOM_THEME) {
+      // A Pac-Man from several different themes, since it could be any of them.
+      const pool = Object.values(THEMES);
+      sprites = swatch(Array.from({ length: 5 }, (_, i) => pool[(i * 2) % pool.length].pacman), '▒▒');
+      note = '  a different theme every run';
+    } else {
+      const { pacman, blinky, pinky, inky, clyde } = THEMES[name];
+      sprites = swatch([pacman, blinky, pinky, inky, clyde], '██');
+      if (name === DEFAULT_THEME) note = '  (default)';
+    }
+    return `    ${name.padEnd(width)}  ${sprites}${note}`;
+  });
+}
+
+// --test is deliberately left out of the help: it is for trying changes and recording demos.
 function printHelp(): void {
   const rows: Array<[string, string]> = [
     ['--speed <name>', `Animation speed (default: ${DEFAULT_SPEED})`],
     ['--theme <name>', `Color theme (default: ${DEFAULT_THEME})`],
-    ['--themes', 'Preview all themes'],
-    ['--test', 'Fill the screen with sample text first'],
     ['-h, --help', 'Show this help'],
     ['-v, --version', 'Show the version']
   ];
   const width = Math.max(...rows.map(([flag]) => flag.length));
   const options = rows.map(([flag, text]) => `    ${flag.padEnd(width)}  ${text}`).join('\n');
+  const speeds = Object.keys(SPEEDS)
+    .map((name) => (name === DEFAULT_SPEED ? `${name} (default)` : name))
+    .join(', ');
 
   console.log(`
   pacman-cleaner v${VERSION} - clear your terminal the fun way
@@ -621,44 +645,11 @@ function printHelp(): void {
 ${options}
 
   SPEEDS:
-    ${Object.keys(SPEEDS).join(', ')}
+    ${speeds}
 
   THEMES:
-    ${THEME_CHOICES.join(', ')}
+${themeLines().join('\n')}
 `);
-}
-
-/**
- * Prints Pac-Man and the four ghosts in every theme, one theme per line,
- * with a marker on the theme that `--theme` (or the default) would use.
- */
-function printThemes(selected: string): void {
-  const names = THEME_CHOICES;
-  const width = Math.max(...names.map((name) => name.length));
-  const block = '██';
-  const solid = (paint: Paint): string => (typeof paint === 'function' ? paint(0) : paint);
-
-  console.log();
-  for (const name of names) {
-    let sprites: string;
-    let note = '';
-    if (name === RANDOM_THEME) {
-      // One Pac-Man from each theme, as a hint that it could be any of them.
-      const pool = Object.values(THEMES);
-      sprites = Array.from({ length: 5 }, (_, i) => solid(pool[(i * 2) % pool.length].pacman) + '▒▒' + RESET_COLOR).join(' ');
-      note = '  🎲 a surprise every run';
-    } else {
-      const { pacman, blinky, pinky, inky, clyde } = THEMES[name];
-      sprites = [pacman, blinky, pinky, inky, clyde].map((paint) => solid(paint) + block + RESET_COLOR).join(' ');
-      if (name === DEFAULT_THEME) note = '  (default)';
-    }
-
-    const isSelected = name === selected;
-    const marker = isSelected ? `${BOLD}›${RESET_COLOR}` : ' ';
-    const label = isSelected ? `${BOLD}${name.padEnd(width)}${RESET_COLOR}` : name.padEnd(width);
-    console.log(` ${marker} ${label}  ${sprites}${note}${isSelected ? '  ← selected' : ''}`);
-  }
-  console.log('\n  Use one with: pacclean --theme <name>\n');
 }
 
 function parseArgs(argv: string[]): Options {
@@ -666,7 +657,6 @@ function parseArgs(argv: string[]): Options {
     speed: DEFAULT_SPEED,
     theme: DEFAULT_THEME,
     test: false,
-    themes: false,
     help: false,
     version: false
   };
@@ -707,10 +697,6 @@ function parseArgs(argv: string[]): Options {
       case '--test':
         noValue();
         options.test = true;
-        break;
-      case '--themes':
-        noValue();
-        options.themes = true;
         break;
       case '--speed':
         options.speed = choice(Object.keys(SPEEDS));
@@ -856,10 +842,6 @@ async function main(): Promise<void> {
   }
   if (options.version) {
     console.log(`pacman-cleaner v${VERSION}`);
-    return;
-  }
-  if (options.themes) {
-    printThemes(options.theme);
     return;
   }
 
